@@ -22,7 +22,11 @@ const bloggerSchema= new mongoose.Schema(
             type:String,
             enum:['blogger', 'admin'],
             default:'blogger'
-        }
+        },
+        isBlocked: { 
+    type: Boolean, 
+    default: false 
+  }
     },
     {timestamps:true}
 )
