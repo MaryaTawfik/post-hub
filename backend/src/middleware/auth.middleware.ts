@@ -1,17 +1,17 @@
-import {Request, Response, NextFunction} from 'express'
+import { Request, Response, NextFunction } from 'express'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import Blogger from '../models/blogger.model'
-interface jwtPayload{
-    id: string
-    role:string
+interface jwtPayload {
+  id: string
+  role: string
 }
 
-declare global{
-    namespace Express{
-        interface Request{
-            blogger?: JwtPayload
-        }
+declare global {
+  namespace Express {
+    interface Request {
+      blogger?: JwtPayload
     }
+  }
 }
 
 // export const authMiddleware=(
@@ -43,7 +43,7 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     if (!token) return res.status(401).json({ message: "Not authorized" });
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
-    
+
     // 1. Fetch the blogger from the database to check current status
     const currentBlogger = await Blogger.findById(decoded.id);
 
@@ -53,14 +53,14 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
 
     // 2. THE BLOCK CHECK:
     if (currentBlogger.isBlocked) {
-      return res.status(403).json({ 
-        message: "Your account has been blocked by an admin. Please contact support." 
+      return res.status(403).json({
+        message: "Your account has been blocked by an admin. Please contact support."
       });
     }
 
     // 3. Attach blogger to request
     req.blogger = {
-      id: currentBlogger._id,
+      id: String(currentBlogger._id),
       role: currentBlogger.role
     };
 
@@ -69,10 +69,10 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     res.status(401).json({ message: "Invalid token" });
   }
 };
-export const adminMiddleware=(req: Request, res:Response,next:NextFunction)=>{
-    if(req.blogger && req.blogger.role==='admin'){
-        next()
-    }else{
-        res.status(403).json({message:'Acess denied:admin only'})
-    }
+export const adminMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  if (req.blogger && req.blogger.role === 'admin') {
+    next()
+  } else {
+    res.status(403).json({ message: 'Acess denied:admin only' })
+  }
 }
