@@ -24,27 +24,35 @@
 // export default router
 
 import { Router } from 'express'
-import { 
-  createPost, getPosts, getPostById, 
-  updatePost, deletePost, toggleBookmark 
+import {
+  createPost, getPosts, getPostById,
+  updatePost, deletePost, toggleBookmark
 } from '../controllers/post.controller'
-import { toggleBlockBlogger } from '../controllers/blogger.controller' 
+import { toggleBlockBlogger, getAllBloggers } from '../controllers/blogger.controller'
 import { authMiddleware } from '../middleware/auth.middleware'
 import authorize from '../middleware/role.middleware'
-
+import { validate } from '../middleware/validate.middleware'
+import { createPostSchema, updatePostSchema } from '../validations/post.validation'
 const router = Router()
 
 // --- 1. VISITOR ROUTES (Public) ---
-// Anyone can see the feed or a specific post
+// Anyone can see the feed
 router.get('/', getPosts)
-router.get('/:id', getPostById)
 
-// --- 2. OWNER/BLOGGER ROUTES (Auth Required) ---
+// --- 2. PROTECTED ROUTES (Auth Required) ---
 router.use(authMiddleware)
 
-router.post('/', createPost)             // Create new
+// Admin: Get all bloggers (Must be before :id route)
+router.get('/all-bloggers', authorize('admin'), getAllBloggers)
+
+// Get single post (Public or Private depending on logic)
+router.get('/:id', getPostById)
+
+// --- 3. OWNER/BLOGGER ROUTES ---
+
+router.post('/', validate(createPostSchema), createPost)             // Create new
 router.post('/:id/bookmark', toggleBookmark) // Bookmark
-router.put('/:id', updatePost)           // Update (Controller checks if owner)
+router.put('/:id', validate(updatePostSchema), updatePost)           // Update (Controller checks if owner)
 
 // --- 3. ADMIN ONLY ROUTES ---
 // Admin can delete any post and block users

@@ -17,11 +17,14 @@ app.use(express.json())
 
 app.use(cookieParser())
 app.use('/api/auth', authRoutes)
-app.use('/api/test',testRoutes)
+app.use('/api/test', testRoutes)
 
 app.use('/api/posts', postRoutes)
-app.get('/',(req,res)=>{
-    res.send('API is running')
+app.get('/', (req, res) => {
+  res.send('API is running')
 })
+
+import { errorHandler } from './middleware/error.middleware';
+app.use(errorHandler);
 
 export default app

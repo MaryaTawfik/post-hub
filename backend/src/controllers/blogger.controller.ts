@@ -1,5 +1,5 @@
 import Blogger from '../models/blogger.model';
-import { Request,Response } from "express";
+import { Request, Response } from "express";
 
 export const toggleBlockBlogger = async (req: Request, res: Response) => {
   try {
@@ -14,6 +14,15 @@ export const toggleBlockBlogger = async (req: Request, res: Response) => {
     await blogger.save();
 
     res.json({ message: `Blogger has been ${blogger.isBlocked ? 'blocked' : 'unblocked'}` });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getAllBloggers = async (req: Request, res: Response) => {
+  try {
+    const bloggers = await Blogger.find({ role: 'blogger' }).select('-password');
+    res.json(bloggers);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
