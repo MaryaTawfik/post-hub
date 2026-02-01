@@ -1,6 +1,5 @@
 import './globals.css'
 import { AuthProvider } from '@/context/AuthContext'
-import { Navbar } from '@/components/layout/Navbar'
 
 export const metadata = {
   title: 'Post Hub | Preserve Your Heritage',
