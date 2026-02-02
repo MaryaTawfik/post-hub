@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 
 // --- Interfaces ---
 interface Blogger {
@@ -15,18 +16,28 @@ interface Blogger {
 interface Post {
   _id: string;
   title: string;
-  author: { 
+  author: {
     _id: string;
-    name: string; 
+    name: string;
     role: string;
   };
 }
 
 export default function AdminDashboard() {
+  const { user } = useAuth();
   const [view, setView] = useState<'users' | 'posts'>('users');
   const [data, setData] = useState<(Blogger | Post)[]>([]);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    // Basic protection: if user is not admin, redirect
+    if (user && user.role !== 'admin') {
+      router.push('/');
+    }
+
+    fetchData('users');
+  }, [user, router]);
 
   // Fetch Data
   const fetchData = async (type: 'users' | 'posts') => {
@@ -38,6 +49,7 @@ export default function AdminDashboard() {
       setData(res.data);
     } catch (error) {
       console.error("Fetch error:", error);
+      alert("Failed to fetch data. Please make sure you are logged in as an admin.");
     } finally {
       setLoading(false);
     }
@@ -76,25 +88,23 @@ export default function AdminDashboard() {
         <h1 className="text-4xl font-black text-gray-800">Admin Control Panel</h1>
         <p className="text-gray-500">Manage your platform users and content.</p>
       </header>
-      
+
       {/* Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-        <button 
-          onClick={() => fetchData('users')} 
-          className={`p-8 rounded-2xl text-left transition-all shadow-lg hover:scale-[1.02] ${
-            view === 'users' ? 'bg-blue-600 text-white' : 'bg-white text-gray-800 border'
-          }`}
+        <button
+          onClick={() => fetchData('users')}
+          className={`p-8 rounded-2xl text-left transition-all shadow-lg hover:scale-[1.02] ${view === 'users' ? 'bg-blue-600 text-white' : 'bg-white text-gray-800 border'
+            }`}
         >
           <span className="text-3xl mb-2 block">👥</span>
           <h2 className="text-xl font-bold">All Bloggers</h2>
           <p className={view === 'users' ? 'text-blue-100' : 'text-gray-500'}>Manage accounts & access</p>
         </button>
 
-        <button 
-          onClick={() => fetchData('posts')} 
-          className={`p-8 rounded-2xl text-left transition-all shadow-lg hover:scale-[1.02] ${
-            view === 'posts' ? 'bg-purple-600 text-white' : 'bg-white text-gray-800 border'
-          }`}
+        <button
+          onClick={() => fetchData('posts')}
+          className={`p-8 rounded-2xl text-left transition-all shadow-lg hover:scale-[1.02] ${view === 'posts' ? 'bg-purple-600 text-white' : 'bg-white text-gray-800 border'
+            }`}
         >
           <span className="text-3xl mb-2 block">📝</span>
           <h2 className="text-xl font-bold">All Posts</h2>
@@ -135,17 +145,16 @@ export default function AdminDashboard() {
                       </div>
                     )}
                   </td>
-                  
+
                   <td className="p-4 text-right">
                     <div className="flex justify-end gap-3">
                       {isBlogger(item) ? (
-                        <button 
+                        <button
                           onClick={() => handleToggleBlock(item._id)}
-                          className={`px-4 py-1.5 rounded-lg text-xs font-bold transition ${
-                            item.isBlocked 
-                              ? 'bg-green-100 text-green-700 hover:bg-green-200' 
-                              : 'bg-red-100 text-red-700 hover:bg-red-200'
-                          }`}
+                          className={`px-4 py-1.5 rounded-lg text-xs font-bold transition ${item.isBlocked
+                            ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                            : 'bg-red-100 text-red-700 hover:bg-red-200'
+                            }`}
                         >
                           {item.isBlocked ? 'UNBLOCK' : 'BLOCK USER'}
                         </button>
@@ -153,7 +162,7 @@ export default function AdminDashboard() {
                         <>
                           {/* EDIT button only if author is Admin */}
                           {item.author.role === 'admin' && (
-                            <button 
+                            <button
                               onClick={() => router.push(`/edit-post/${item._id}`)}
                               className="bg-blue-100 text-blue-700 px-4 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-200 transition"
                             >
@@ -161,7 +170,7 @@ export default function AdminDashboard() {
                             </button>
                           )}
                           {/* DELETE button for ALL posts */}
-                          <button 
+                          <button
                             onClick={() => handleDeletePost(item._id)}
                             className="bg-gray-100 text-gray-600 px-4 py-1.5 rounded-lg text-xs font-bold hover:bg-red-500 hover:text-white transition"
                           >

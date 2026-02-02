@@ -29,13 +29,14 @@ export const register = async (req: Request, res: Response) => {
         const blogger = await Blogger.create({ name, email, password, role });
 
 
-        sendToken(res, String(blogger._id), blogger.role);
+        const token = sendToken(res, String(blogger._id), blogger.role);
 
         return res.status(201).json({
             id: blogger._id,
             name: blogger.name,
             email: blogger.email,
-            role: blogger.role
+            role: blogger.role,
+            token
         });
 
     } catch (error: any) {
@@ -58,13 +59,14 @@ export const login = async (req: Request, res: Response) => {
             return res.status(401).json({ message: 'Invalid credentials' })
         }
 
-        sendToken(res, String(blogger._id), blogger.role);
+        const token = sendToken(res, String(blogger._id), blogger.role);
 
         res.json({
             id: blogger._id,
             name: blogger.name,
             email: blogger.email,
-            role: blogger.role
+            role: blogger.role,
+            token
         })
 
     } catch (error: any) {

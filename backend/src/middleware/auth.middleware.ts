@@ -39,7 +39,13 @@ declare global {
 
 export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const token = req.cookies.token;
+    let token = req.cookies.token;
+
+    // Check Authorization header if cookie is missing
+    if (!token && req.headers.authorization?.startsWith("Bearer")) {
+      token = req.headers.authorization.split(" ")[1];
+    }
+
     if (!token) return res.status(401).json({ message: "Not authorized" });
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;

@@ -30,7 +30,7 @@ export const createPost = async (req: Request, res: Response) => {
  */
 export const getPosts = async (req: Request, res: Response) => {
   try {
-    const posts = await Post.find().populate('author', 'name email').sort({ createdAt: -1 });
+    const posts = await Post.find().populate('author', 'name email role').sort({ createdAt: -1 });
     res.json(posts);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
