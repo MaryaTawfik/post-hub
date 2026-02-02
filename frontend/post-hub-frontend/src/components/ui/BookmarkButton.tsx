@@ -1,22 +1,34 @@
-'use client'
+'use client';
 
-import api from '@/lib/api'
-import { useState } from 'react'
+import api from '@/lib/api';
+import { useState } from 'react';
+import { Bookmark } from 'lucide-react';
 
 export default function BookmarkButton({ postId }: { postId: string }) {
-  const [saved, setSaved] = useState(false)
+  const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const toggle = async () => {
-    await api.post(`/posts/${postId}/bookmark`)
-    setSaved(!saved)
-  }
+  const toggle = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setLoading(true);
+    try {
+      await api.post(`/posts/${postId}/bookmark`);
+      setSaved(!saved);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <button
       onClick={toggle}
-      className={`text-sm ${saved ? 'text-yellow-500' : 'text-gray-400'}`}
+      disabled={loading}
+      className={`p-2 rounded-lg transition-all ${saved ? 'bg-black text-white' : 'text-gray-400 hover:text-black hover:bg-slate-100'}`}
     >
-      ⭐ {saved ? 'Bookmarked' : 'Bookmark'}
+      <Bookmark size={18} fill={saved ? "currentColor" : "none"} />
     </button>
-  )
+  );
 }

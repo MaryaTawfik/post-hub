@@ -26,7 +26,13 @@ const bloggerSchema = new mongoose.Schema(
         isBlocked: {
             type: Boolean,
             default: false
-        }
+        },
+        bookmarks: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Post'
+            }
+        ]
     },
     { timestamps: true }
 )

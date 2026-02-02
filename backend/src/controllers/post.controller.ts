@@ -142,9 +142,22 @@ export const toggleBookmark = async (req: Request, res: Response) => {
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ message: 'Post not found' });
 
-    // Note: You would typically have a 'bookmarks' array in your Blogger model
-    // For now, we'll return a success message
-    res.json({ message: 'Post added to your bookmarks' });
+    const blogger = await Blogger.findById(req.blogger!.id);
+    if (!blogger) return res.status(404).json({ message: 'User not found' });
+
+    const isBookmarked = blogger.bookmarks?.includes(post._id as any);
+
+    if (isBookmarked) {
+      blogger.bookmarks = blogger.bookmarks?.filter(id => id.toString() !== post._id.toString());
+    } else {
+      blogger.bookmarks?.push(post._id as any);
+    }
+
+    await blogger.save();
+    res.json({
+      message: isBookmarked ? 'Post removed from bookmarks' : 'Post added to bookmarks',
+      isBookmarked: !isBookmarked
+    });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }

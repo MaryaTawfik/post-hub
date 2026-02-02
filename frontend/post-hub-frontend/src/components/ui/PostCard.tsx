@@ -4,11 +4,14 @@ import { IPost } from '@/types';
 import { Calendar, User, Edit3, Eye, Bookmark, Lock } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useState } from 'react';
+import api from '@/lib/api';
 
 export default function PostCard({ post }: { post: IPost }) {
     const { user } = useAuth();
     const router = useRouter();
+    const [isBookmarked, setIsBookmarked] = useState(false);
+    const [loadingBookmark, setLoadingBookmark] = useState(false);
 
     const handleProtectedAction = (e: React.MouseEvent, action: string, path?: string) => {
         e.preventDefault();
@@ -22,6 +25,27 @@ export default function PostCard({ post }: { post: IPost }) {
 
         if (path) {
             router.push(path);
+        }
+    };
+
+    const handleBookmark = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!user) {
+            alert('Please login first to bookmark this post');
+            router.push('/auth/login');
+            return;
+        }
+
+        setLoadingBookmark(true);
+        try {
+            await api.post(`/posts/${post._id}/bookmark`);
+            setIsBookmarked(!isBookmarked);
+        } catch (error) {
+            console.error('Failed to toggle bookmark', error);
+        } finally {
+            setLoadingBookmark(false);
         }
     };
 
@@ -81,7 +105,7 @@ export default function PostCard({ post }: { post: IPost }) {
                     </button>
 
                     <button
-                        onClick={(e) => handleProtectedAction(e, 'see details', `/posts/${post._id}`)}
+                        onClick={() => router.push(`/posts/${post._id}`)}
                         className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl bg-slate-50 text-slate-600 hover:bg-amber-600 hover:text-white transition-all group/btn"
                     >
                         <Eye size={18} />
@@ -89,11 +113,12 @@ export default function PostCard({ post }: { post: IPost }) {
                     </button>
 
                     <button
-                        onClick={(e) => handleProtectedAction(e, 'bookmark this post')}
-                        className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl bg-slate-50 text-slate-600 hover:bg-amber-600 hover:text-white transition-all group/btn"
+                        onClick={handleBookmark}
+                        disabled={loadingBookmark}
+                        className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-xl transition-all group/btn ${isBookmarked ? 'bg-black text-white' : 'bg-slate-50 text-slate-600 hover:bg-black hover:text-white'}`}
                     >
-                        <Bookmark size={18} />
-                        <span className="text-[10px] font-bold uppercase tracking-tighter">Save</span>
+                        <Bookmark size={18} fill={isBookmarked ? "white" : "none"} />
+                        <span className="text-[10px] font-bold uppercase tracking-tighter">{isBookmarked ? 'Saved' : 'Save'}</span>
                     </button>
                 </div>
             </div>

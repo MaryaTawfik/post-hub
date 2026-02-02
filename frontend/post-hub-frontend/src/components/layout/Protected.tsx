@@ -6,10 +6,10 @@ import { useEffect } from 'react'
 
 export default function Protected({
   children,
-  role,
+  adminOnly,
 }: {
   children: React.ReactNode
-  role?: 'admin' | 'blogger'
+  adminOnly?: boolean
 }) {
   const { user } = useAuth()
   const router = useRouter()
@@ -20,10 +20,10 @@ export default function Protected({
       return
     }
 
-    if (role && user.role !== role) {
+    if (adminOnly && user.role !== 'admin') {
       router.replace('/')
     }
-  }, [user, router, role])
+  }, [user, router, adminOnly])
 
   if (!user) return null
 

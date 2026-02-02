@@ -39,24 +39,25 @@ const router = Router()
 // Anyone can see the feed
 router.get('/', getPosts)
 
-// --- 2. PROTECTED ROUTES (Auth Required) ---
-router.use(authMiddleware)
+// NOTE: Place specific public routes before the dynamic `/:id` route
+// so that paths like `/all-bloggers` are not accidentally captured by `/:id`.
+// Admin: Get all bloggers (protected)
+router.get('/all-bloggers', authMiddleware, authorize('admin'), getAllBloggers)
 
-// Admin: Get all bloggers (Must be before :id route)
-router.get('/all-bloggers', authorize('admin'), getAllBloggers)
-
-// Get single post (Public or Private depending on logic)
+// Public: Get single post by id
 router.get('/:id', getPostById)
 
-// --- 3. OWNER/BLOGGER ROUTES ---
-
-router.post('/', validate(createPostSchema), createPost)             // Create new
-router.post('/:id/bookmark', toggleBookmark) // Bookmark
-router.put('/:id', validate(updatePostSchema), updatePost)           // Update (Controller checks if owner)
+// --- 2. PROTECTED ROUTES (Auth Required) ---
+// Create new post (blogger)
+router.post('/', authMiddleware, validate(createPostSchema), createPost)
+// Bookmark a post
+router.post('/:id/bookmark', authMiddleware, toggleBookmark)
+// Update a post (owner or admin)
+router.put('/:id', authMiddleware, validate(updatePostSchema), updatePost)
 
 // --- 3. ADMIN ONLY ROUTES ---
 // Admin can delete any post and block users
-router.delete('/:id', authorize('admin'), deletePost)
-router.patch('/block-user/:id', authorize('admin'), toggleBlockBlogger)
+router.delete('/:id', authMiddleware, authorize('admin'), deletePost)
+router.patch('/block-user/:id', authMiddleware, authorize('admin'), toggleBlockBlogger)
 
 export default router

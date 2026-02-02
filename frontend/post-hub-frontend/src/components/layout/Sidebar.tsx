@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { Home, Globe, PlusSquare, LogIn, UserPlus, LogOut, Menu, X } from "lucide-react";
+import { Home, Globe, PlusSquare, LogIn, UserPlus, LogOut, Menu, X, Shield } from "lucide-react";
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -21,6 +21,15 @@ export const Sidebar = () => {
             requireAuth: true
         },
     ];
+
+    if (user?.role === 'admin') {
+        menuItems.push({
+            name: "Admin Dashboard",
+            href: "/admin/dashboard",
+            icon: <Shield size={20} />,
+            requireAuth: true
+        });
+    }
 
     type AuthItem = {
         name: string;
