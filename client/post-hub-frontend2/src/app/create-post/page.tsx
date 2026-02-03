@@ -25,7 +25,7 @@ export default function CreatePost() {
         imageUrl,
         tags: tags.split(',').map(t => t.trim())
       });
-      
+
       // ✅ Optional: Clear form before navigating
       setTitle('');
       setContent('');
@@ -43,14 +43,14 @@ export default function CreatePost() {
   return (
     <div className="max-w-2xl mx-auto py-10">
       <h1 className="text-3xl font-bold mb-6 text-gray-800">Post Your Culture</h1>
-      
+
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow-sm border space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             value={title}
-            placeholder="e.g. Traditional Yemeni Coffee" 
+            placeholder="e.g. Traditional Yemeni Coffee"
             required
             className="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-orange-500 text-black"
             onChange={(e) => setTitle(e.target.value)}
@@ -59,8 +59,8 @@ export default function CreatePost() {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             value={imageUrl}
             placeholder="https://example.com/image.jpg"
             className="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-orange-500 text-black"
@@ -70,8 +70,8 @@ export default function CreatePost() {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Tags</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             value={tags}
             placeholder="history, food, music"
             className="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-orange-500 text-black"
@@ -82,18 +82,18 @@ export default function CreatePost() {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
-          <textarea 
+          <textarea
             value={content}
-            placeholder="Share the story behind this tradition..." 
-            required 
+            placeholder="Share the story behind this tradition..."
+            required
             rows={8}
             className="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-orange-500 text-black"
             onChange={(e) => setContent(e.target.value)}
           />
         </div>
 
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           className="w-full bg-orange-600 text-white py-3 rounded-lg font-bold hover:bg-orange-700 transition shadow-lg shadow-orange-100"
         >
           Publish Post

@@ -1,16 +1,16 @@
 "use client";
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import api from '@/lib/api';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { AxiosError } from 'axios'; // ✅ Import AxiosError
+import { AxiosError } from 'axios';
 
 // Define the shape of your backend error response
 interface ErrorResponse {
   message: string;
 }
 
-export default function LoginPage() {
+function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login } = useAuth();
@@ -21,15 +21,14 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       const res = await api.post('/auth/login', { email, password });
-      
+
       setEmail('');
       setPassword('');
-      
+
       login(res.data);
       const next = searchParams.get('next');
       router.push(next ?? '/');
     } catch (err) {
-      // ✅ Type-safe error handling
       const error = err as AxiosError<ErrorResponse>;
       alert(error.response?.data?.message || "Login failed");
     }
@@ -39,15 +38,15 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-100">
         <h2 className="text-3xl font-bold text-gray-800 mb-2 text-center">Login</h2>
-        
+
         <form onSubmit={handleSubmit} className="space-y-5">
-          <input 
+          <input
             type="email" value={email} required
             className="w-full px-4 py-3 rounded-lg border border-gray-200 outline-none focus:ring-2 focus:ring-orange-500 text-black"
             placeholder="Email"
             onChange={(e) => setEmail(e.target.value)}
           />
-          <input 
+          <input
             type="password" value={password} required
             className="w-full px-4 py-3 rounded-lg border border-gray-200 outline-none focus:ring-2 focus:ring-orange-500 text-black"
             placeholder="Password"
@@ -59,5 +58,17 @@ export default function LoginPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-gray-600">Loading...</div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }
